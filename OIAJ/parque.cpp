@@ -37,11 +37,12 @@ struct DS {
     vi p,r;
 
     void init(int N) {
-        p.assign(N,-1);
-        r.assign(N,-1);
+        p.assign(N,0);
+        r.assign(N,0);
+        forn(i,N) p[i] = i;
     }
 
-    int find (int &x) {return p[x] == -1 ? x : (p[x] = find(p[x]));}
+    int find (int &x) {return p[x] == x ? x : (p[x] = find(p[x]));}
     bool sameSet (int &a, int &b) {return (find(a) == find(b));}
     void join (int &a, int &b) {
         int x = find(a);
@@ -75,12 +76,11 @@ int main() {
         farol[i+1] = {n,a,b};
     }
 
-    forn (i,N+1) forn (j,N+1) {
+    forn (i,N+1) forsn (j,i+1,N+1) {
         if (i == j) continue;
         int c1 = abs(farol[i].x-farol[j].x);
         int c2 = abs(farol[i].y-farol[j].y);
         int a = farol[i].id, b = farol[j].id;
-        //if (a > b) swap(a,b);
         edges[tmpI++] = {a,b,pitagoras(c1,c2)};
     }
 
@@ -98,7 +98,7 @@ int main() {
 
     printf("%lld\n",cable);
     forsn (i,1,N+1) {
-        sort(all(rta[i]));
+        //sort(all(rta[i]));
         printf("%d ",i);
         for (auto &p : rta[i]) printf("%d ",p);
         puts("");
