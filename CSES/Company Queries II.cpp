@@ -25,7 +25,22 @@ const int MAXK = 19;
 vi G[MAXN];
 int T[MAXM],L[MAXM],A[MAXN],LOG[MAXM];
 int actT = 0;
-ii SpT[MAXM][MAXK];
+int SpT[MAXM][MAXK];
+
+void fastscan (int &x) {
+    int c; x = 0;
+    c=getchar_unlocked();
+    for(;c>='0' && c<='9';c=getchar_unlocked())
+        x = x*10 + c-'0';
+}
+
+void fastout (int x) {
+    char out[12];
+    sprintf(out,"%d",x);
+    for(int j = 0; out[j]; j++) putchar_unlocked(out[j]);
+}
+
+bool SpT_cmp (const int &a, const int &b) {return L[a] < L[b];}
 
 void tour(int st, int lvl) {
     A[st] = actT;
@@ -41,34 +56,34 @@ void tour(int st, int lvl) {
 
 void precompLog() {
     LOG[1] = 0;
-    forsn(i,2,MAXM) LOG[i] = LOG[i/2]+1;
+    forsn(i,2,MAXM) LOG[i] = LOG[i>>1]+1;
 }
 
 void fillSpT() {
-    forn(i,actT) SpT[i][0] = {L[i],i};
+    forn(i,actT) SpT[i][0] = i;
 
     forsn(j,1,MAXK) for(int i = 0; i+(1<<(j-1)) < actT; i++)
-        SpT[i][j] = min(SpT[i][j-1],SpT[i+(1<<(j-1))][j-1]);
+        SpT[i][j] = min(SpT[i][j-1],SpT[i+(1<<(j-1))][j-1],SpT_cmp);
 }
 
 int query(int l, int r) {
     int j = LOG[r-l+1];
-    return min(SpT[l][j],SpT[r-(1<<j)+1][j]).snd;
+    return min(SpT[l][j],SpT[r-(1<<j)+1][j],SpT_cmp);
 }
 
 int main() {
     precompLog();
-    int n,q; scanf("%d %d",&n,&q);
+    int n,q; fastscan(n); fastscan(q);
 
     forn(i,n-1) {
-        int x; scanf("%d",&x);
+        int x; fastscan(x);
         G[x-1].pb(i+1);
     }
     tour(0,0); fillSpT();
     forn(i,q) {
-        int a,b; scanf("%d %d",&a,&b);
+        int a,b; fastscan(a); fastscan(b);
         a = A[a-1]; b = A[b-1]; if (a > b) swap(a,b);
-        printf("%d\n",T[query(a,b)]+1);
+        fastout(T[query(a,b)]+1); putchar_unlocked('\n');
     }
 
     return 0;

@@ -2,8 +2,8 @@
 
 #include <bits/stdc++.h>
 
-//#pragma GCC optimize("Ofast")
-//#pragma GCC target("avx,avx2,fma")
+#pragma GCC optimize("Ofast")
+#pragma GCC target("avx,avx2,fma")
 
 #define forn(i,n) for(int i = 0; i < int(n); i++)
 #define forsn(i,s,n) for(int i = int(s); i < int(n); i++)
@@ -22,6 +22,13 @@ typedef pair<int,int> ii;
 
 const int MAXN = 2e5+5;
 const int INF = 1e9+5;
+
+void fastscan (int &x) {
+    int c; x = 0;
+    c=getchar_unlocked();
+    for(; c>='0' && c <='9'; c=getchar_unlocked())
+        x = 10*x + c-'0';
+}
 
 vi G[MAXN];
 int stTime[MAXN], col[MAXN], posTopSort[MAXN];
@@ -57,13 +64,16 @@ int tarjan (int st) { // SCC con Tarjan
 }
 
 int main() {
-    FAST_IO;
-
     memset(stTime,-1,sizeof(stTime)); // reset, si no tengo tiempo inicio
 
-    int n,m; cin >> n >> m;
+    int n,m; fastscan(n); fastscan(m);
     forn(i,n) { // duplicar es +, de lo contrario -
-        char s1,s2; int x1,x2; cin >> s1 >> x1 >> s2 >> x2; x1--; x2--;
+        char s1,s2; int x1,x2;
+        s1=getchar_unlocked(); getchar_unlocked();
+        fastscan(x1);
+        s2=getchar_unlocked(); getchar_unlocked();
+        fastscan(x2);
+        x1--; x2--;
 
         x1 *= 2; x2 *= 2; // duplico así tengo mis opuestos, adyacentes en el array
         // +1 si opuesto es positivo, osea si es negativo. Y x2 +1 si es positivo
@@ -82,8 +92,8 @@ int main() {
         rta[(i+1)/2] = (posTopSort[i+1] < posTopSort[i]);
     }
 
-    if (!posib) cout << "IMPOSSIBLE";
-    else forn(i,m) cout << (rta[i] ? '+' : '-') << ' ';
+    if (!posib) printf("IMPOSSIBLE");
+    else forn(i,m) {putchar_unlocked(rta[i] ? '+' : '-'); putchar_unlocked(' ');}
 
     return 0;
 }
