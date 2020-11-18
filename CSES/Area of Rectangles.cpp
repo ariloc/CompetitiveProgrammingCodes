@@ -105,6 +105,7 @@ int main() {
 
     sort(arr,arr+n+n);
     build(1,0,MAXC); // valores iniciales
+    cerr << ST[1].snd << endl;
     int vSt = ST[1].snd;
 
     int ind = 0;
