@@ -19,10 +19,32 @@ const int MAXN = 1e5+2;
 const int INF = 1e9+2;
 
 vi G[MAXN];
-bitset<MAXN> done;
+bitset<MAXN> done,done1,done2;
+int P[MAXN], dist[MAXN];
+
+int far = -1, maxi = -1;
+void dfs(int st, int lvl) {
+    done[st] = true;
+
+    if (lvl > maxi) {maxi = lvl; far = st;}
+
+    for (auto &i : G[st])
+        if (!done[i]) dfs(i,lvl+1);
+}
+
+void dfs2(int st, int lvl) {
+    done2[st] = true;
+
+    for (auto &i : G[st])
+        if (!done2[i]) dfs2(i,lvl+1);
+
+    dist[st] = lvl;
+}
 
 int main() {
     FAST_IO;
+
+    memset(P,-1,sizeof(P));
 
     int n,k; cin >> n >> k;
 
@@ -33,30 +55,42 @@ int main() {
         G[b].pb(a);
     }
 
-    vi Q[2];
-    int lvls = 0;
-    forn (i,n) if (G[i].size() == 1) {done[i] = true; Q[0].pb(i);}
+    dfs(0,0);
 
-    int ind = 0, choose = -1;
-    while (not Q[0].empty() or not Q[1].empty()) {
-        lvls++;
-        while (not Q[ind].empty()) {
-            auto e = Q[ind].back(); Q[ind].pop_back();
+    queue<ii> Q;
+    Q.push({far,0});
+    done[far] = true;
 
-            for (auto &i : G[e]) {
-                if (done[i]) continue;
-                done[i] = true;
-                Q[(ind+1)%2].pb(i);
-            }
+    int maxD = -1, extr = -1;
+    while (not Q.empty()) {
+        auto e = Q.front(); Q.pop();
+
+        if (e.snd > maxD) {maxD = e.snd; extr = e.fst;}
+
+        for (auto &i : G[e.fst]) {
+            if (done1[i]) continue;
+            done1[i] = true;
+            P[i] = e.fst;
+            Q.push({i,e.snd+1});
         }
-        ind++; ind %= 2;
-        if (Q[ind].size() == 1) choose = Q[ind].back();
     }
-    if (choose == -1) {cout << "No"; return 0;}
 
-    forn (i,n) if (G[i].size() < 3 and G[i].size() != 1) {cout << "No"; return 0;}
-    if (lvls-1 != k) cout << "No";
-    else cout << "Yes";
+    bool posib = true;
+    int half = maxD / 2, ctr = -1;
+    for (int i = extr, cnt = 0; i != -1; i = P[i], cnt++) {
+        if (cnt == half) {ctr = i; break;}
+    }
+
+    dfs2(ctr,0);
+
+    forn (i,n) {
+        if (dist[i] == k) {if(G[i].size() != 1) posib = false;}
+        else if (!dist[i]) {if (G[i].size() < 3) posib = false;}
+        else if (G[i].size() < 4) posib = false;
+    }
+
+    if (posib) cout << "Yes\n";
+    else cout << "No\n";
 
     return 0;
 }
