@@ -25,6 +25,14 @@ struct nodo {
     }
 };
 
+void fastscan (int &x) {
+    int c; x = 0;
+    c=getchar_unlocked();
+    while (c<'0'||c>'9') c=getchar_unlocked();
+    for(; (c>='0'&&c<='9'); c=getchar_unlocked())
+        x = 10*x + c-'0';
+}
+
 vector<nodo> G[MAXN];
 ii P[MAXN][MAXN];
 int dp[MAXN][MAXN];
@@ -35,7 +43,7 @@ void dijkstra (int st) {
     priority_queue<nodo> Q;
     D[st] = 0;
     P[st][st] = {-1,-1};
-    Q.push({st,0});
+    Q.push({st,0,0});
 
     while (not Q.empty()) {
         auto e = Q.top(); Q.pop();
@@ -46,7 +54,7 @@ void dijkstra (int st) {
                 D[w.v] = e.d + w.d;
                 P[st][w.v] = {e.v,w.e};
 
-                Q.push({w.v,D[w.v]});
+                Q.push({w.v,D[w.v],0});
             }
         }
     }
@@ -73,11 +81,10 @@ int main() {
     freopen("congestion.out","w",stdout);
 
     int N,M,prox_libre = 1;
-    scanf("%d %d",&N,&M);
+    fastscan(N); fastscan(M);
 
     forn (i,M) {
-        int a,b,d;
-        scanf("%d %d %d",&a,&b,&d);
+        int a,b,d; fastscan(a); fastscan(b); fastscan(d);
         a--; b--;
         G[a].push_back({b,d,prox_libre++});
     }

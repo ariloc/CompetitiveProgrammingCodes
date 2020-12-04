@@ -18,12 +18,19 @@ const int MAXN = 1e6+2;
 
 bitset<MAXN> dias;
 
+void fastscan (int &x) {
+    int c; x = 0;
+    c=getchar_unlocked();
+    while(c<'0'||c>'9') c=getchar_unlocked();
+    for(; (c>='0'&&c<='9'); c=getchar_unlocked())
+        x = 10*x + c-'0';
+}
+
 int main() {
-    int N,D,F;
-    scanf("%d %d %d",&N,&D,&F);
+    int N,D,F; fastscan(N); fastscan(D); fastscan(F);
 
     forn (i,N) {
-        int x; scanf("%d",&x);
+        int x; fastscan(x);
         dias[x-1] = true;
     }
 

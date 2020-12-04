@@ -21,10 +21,18 @@ struct nodo {
     int v,h; // menor es más bajo -> implica primero pasa agua
 };
 
-int cap[MAXN];
+int cap[MAXN],ind = 0;
 vector<nodo> G[MAXN];
 bitset<MAXN> done;
-vector<ii> D;
+ii D[2*MAXN];
+
+void fastscan(int &x) {
+    int c; x = 0;
+    c=getchar_unlocked();
+    while(c<'0'||c>'9') c=getchar_unlocked();
+    for (; (c>='0' && c<='9'); c=getchar_unlocked())
+        x = x*10 + c-'0';
+}
 
 int used = 0; int filled = 0;
 void dfs(int st) {
@@ -35,35 +43,33 @@ void dfs(int st) {
         if (!done[i.v]) {
             int calc = cap[st]-i.h-accum;
             filled += calc; accum += calc;
-            D.push_back({filled,++used});
+            D[ind++] = {filled,++used};
             dfs(i.v);
         }
 
-    if (!st) D.push_back({filled,++used});
+    if (!st) D[ind++] = {filled,++used};
     filled += cap[st]-accum;
 }
 
 int main() {
-    FAST_IO;
-
-    int T; cin >> T;
-    forn (i,T) cin >> cap[i];
+    int T; fastscan(T);
+    forn (i,T) fastscan(cap[i]);
     forn (i,T-1) {
-        int T1,D1,T2;
-        cin >> T1 >> D1 >> T2; T1--; T2--;
+        int T1,D1,T2; fastscan(T1); fastscan(D1); fastscan(T2);
+        T1--; T2--;
         G[T1].push_back({T2,D1});
     }
 
     forn (i,T) sort(all(G[i]),[](const nodo &a, const nodo &b){return a.h > b.h;});
     dfs(0);
-    sort(all(D));
+    sort(D,D+ind);
 
-    int Q; cin >> Q;
+    int Q; fastscan(Q);
     forn (i,Q) {
-        int x; cin >> x;
-        auto it = lower_bound(all(D),x,[](const ii &a, const int &b){return a.fst < b;});
-        if (it == D.end()) cout << D.back().snd << ' ';
-        else cout << D[it-D.begin()].snd << ' ';
+        int x; fastscan(x);
+        auto it = lower_bound(D,D+ind,x,[](const ii &a, const int &b){return a.fst < b;}) - D;
+        if (it == ind) printf("%d ",D[ind-1].snd);
+        else printf("%d ",D[it].snd);
     }
 
     return 0;
