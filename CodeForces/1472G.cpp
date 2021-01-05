@@ -46,7 +46,10 @@ int dfs (int st) {
 
     int mini = rta[st];
     for (auto &i : G[st]) {
-        if (dist[i] > dist[st]) mini = min(mini,dfs(i));
+        if (dist[i] > dist[st]) {
+            if (!done2[i]) mini = min(mini,dfs(i));
+            else mini = min(mini,rta[i]);
+        }
         else mini = min(mini,dist[i]);
     }
 
