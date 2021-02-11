@@ -20,32 +20,26 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
+map<int,int> coord1[2];
+map<ii,int> coord2;
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
-
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    int n; cin >> n;
+    forn(i,n) {
+        int x,y; cin >> x >> y;
+        coord1[0][x]++;
+        coord1[1][y]++;
+        coord2[{x,y}]++;
     }
+
+    ll cnt = 0;
+    for (auto &i : coord1[0]) cnt += (ll)i.snd*(i.snd-1)/2;
+    for (auto &i : coord1[1]) cnt += (ll)i.snd*(i.snd-1)/2;
+    for (auto &i : coord2) cnt -= (ll)i.snd*(i.snd-1)/2;
+
+    cout << cnt;
 
     return 0;
 }

@@ -22,29 +22,23 @@ typedef pair<int,int> ii;
 
 const int MAXN = 1e5+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ii monst[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
-
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+    int t; cin >> t;
+    forn(i,t) {
+        int A,B,n; cin >> A >> B >> n;
+        forn(j,n) cin >> monst[j].fst;
+        forn(j,n) cin >> monst[j].snd;
+        ll auxB = B; int maxi = 0;
+        forn(j,n) {
+            int cnt = (monst[j].snd+A-1)/A;
+            auxB -= (ll)cnt*monst[j].fst;
+            maxi = max(maxi,monst[j].fst);
         }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        cout << ((auxB + maxi) > 0 ? "YES" : "NO") << '\n';
     }
 
     return 0;

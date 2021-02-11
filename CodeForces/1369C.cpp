@@ -20,31 +20,31 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 2e5+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int arr[MAXN],w[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(o,t) {
+        int n,k; cin >> n >> k;
+        forn(i,n) cin >> arr[i];
+        sort(arr,arr+n);
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        forn(i,k) cin >> w[i];
+        sort(w,w+k);
+
+        ll sum = 0; int idx = 0;
+        dforsn(i,n-k,n) {sum += arr[i]; if (w[idx] == 1) idx++, sum += arr[i];}
+        dforn(i,n-k) {
+            w[idx]--;
+            while (w[idx] > 1) i--, w[idx]--;
+            sum += arr[i], idx++;
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        cout << sum << '\n';
     }
 
     return 0;

@@ -20,31 +20,28 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
-
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
-
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+    int t; cin >> t;
+    forn(i,t) {
+        int x,y; cin >> x >> y;
+        string s; cin >> s;
+        ii nd = {0,0};
+        forn(j,s.size()) {
+            if (s[j] == 'L') nd.fst--;
+            else if (s[j] == 'R') nd.fst++;
+            else if (s[j] == 'U') nd.snd++;
+            else nd.snd--;
         }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        forn(j,s.size()) {
+            if (nd.fst > x && s[j] == 'R') nd.fst--;
+            if (nd.fst < x && s[j] == 'L') nd.fst++;
+            if (nd.snd < y && s[j] == 'D') nd.snd++;
+            if (nd.snd > y && s[j] == 'U') nd.snd--;
         }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        if (nd.fst == x && nd.snd == y) cout << "YES\n";
+        else cout << "NO\n";
     }
 
     return 0;

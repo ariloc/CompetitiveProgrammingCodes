@@ -20,31 +20,19 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
+vi nums;
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n; cin >> n;
+    int cnt[2] = {0,0};
+    forn(i,n) {int x; cin >> x; nums.pb(x); cnt[x]++;}
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    int aux[2] = {0,0};
+    forn(i,n) {
+        aux[nums[i]]++;
+        if (aux[0] == cnt[0] || aux[1] == cnt[1]) {cout << i+1; break;}
     }
 
     return 0;

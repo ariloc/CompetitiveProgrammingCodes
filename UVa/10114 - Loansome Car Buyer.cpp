@@ -20,31 +20,26 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
-
 int main() {
-    FAST_IO;
+    int mo,n; ld pay,owe;
+    while (scanf("%d %Lf %Lf %d",&mo,&pay,&owe,&n) != EOF) {
+        if (mo < 0) break;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
-
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+        int actMo = 0; ld val = pay+owe, prvPer = 1;
+        ld cuota = owe/mo;
+        int rta = -1;
+        forn(i,n+1) { // 1+ dummy
+            int x = mo+1; ld per;
+            if (i < n) scanf("%d %Lf",&x,&per);
+            while (actMo < x) {
+                val *= (1-prvPer); if (actMo > 0) owe -= cuota;
+                if (owe < val && rta == -1) rta = actMo;
+                actMo++;
+            }
+            prvPer = per;
         }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        printf("%d month%s\n",rta,(rta != 1 ? "s" : ""));
     }
 
     return 0;

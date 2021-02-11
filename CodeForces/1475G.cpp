@@ -20,31 +20,36 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 2e5+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int histo[MAXN], arr[MAXN], dp[MAXN];
+
+int solve (int st, int step) {
+    if (st >= MAXN) return 0;
+    if (st == step && dp[st] != -1) return dp[st];
+
+    int v = max(solve(st+step,step),solve(st+step,st+step))+(step == st)*histo[st];
+    if (st == step) dp[st] = v;
+    return v;
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        int n; cin >> n;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+        memset(dp,-1,sizeof(dp)); // reset
+        forn(j,MAXN) histo[j] = 0;
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        forn(j,n) cin >> arr[j], histo[arr[j]]++;
+        //sort(arr,arr+n);
+
+        int rta = 0;
+        forn(j,n) rta = max(solve(arr[j],arr[j]),rta);
+
+        cout << n-rta << '\n';
     }
 
     return 0;

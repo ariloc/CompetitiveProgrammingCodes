@@ -20,32 +20,32 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 2e5+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int arr[MAXN];
+map<int,int> appear;
+priority_queue<int,vi,greater<int>> missing;
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n; cin >> n;
+    forn(i,n) cin >> arr[i];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+    forn(i,n) appear[arr[i]]++;
+    forn(i,n) if (!appear.count(i+1)) missing.push(i+1);
+    int cnt = 0;
+    forn(i,n) {
+        if (!appear.count(arr[i]) || (appear[arr[i]] > 1 && missing.top() < arr[i])) {
+            if (appear.count(arr[i])) appear[arr[i]]--;
+            arr[i] = missing.top(), missing.pop();
+            cnt++;
         }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        if (appear.count(arr[i])) appear.erase(arr[i]);
     }
+
+    cout << cnt << '\n';
+    forn(i,n) cout << arr[i] << ' ';
 
     return 0;
 }

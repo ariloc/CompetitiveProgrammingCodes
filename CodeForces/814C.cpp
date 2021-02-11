@@ -20,31 +20,25 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
-
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
+    int n; cin >> n;
+    string s; cin >> s;
+    int q; cin >> q;
+
     forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+        int m; char c; cin >> m >> c;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        int r = 0, diff = 0, maxi = 0;
+        forn(l,n) {
+            while (r < n && (diff < m || (diff == m && s[r] == c)))
+                diff += (s[r] != c), r++;
+            maxi = max(maxi,r-l);
+            diff -= (s[l] != c);
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        cout << maxi << '\n';
     }
 
     return 0;

@@ -20,31 +20,29 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 105;
+const int INF = 1e9+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int h[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        int n,k; cin >> n >> k;
+        forn(j,n) cin >> h[j];
+        h[n] = -INF;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+
+        while (k > 0) {
+            bool pass = 0;
+            forn(j,n)
+                if (h[j] < h[j+1]) {h[j]++; pass = 1; k--; if (k <= 0) cout << j+1 << '\n'; break;}
+            if (!pass) break;
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        if (k > 0) cout << "-1\n";
     }
 
     return 0;

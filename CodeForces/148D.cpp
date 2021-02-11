@@ -20,32 +20,27 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 1005;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ld dp[MAXN][MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int w,b; cin >> w >> b;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+    ld prob = 0;
+    dp[w][b] = 1;
+    dforn(i,w+1) dforn(j,b+1) {
+        if (i-1 >= 0) {
+            int turn = ((w+b-i-j)%3); ld calc = dp[i][j]*(i/(ld)(i+j));
+            if (turn == 2) dp[i-1][j] += calc; // solo sigo si fue uno que saltó
+            if (!turn) prob += calc; // si agarra la princesa
         }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        if (j-1 >= 0) dp[i][j-1] += dp[i][j]*(j/(ld)(i+j));
     }
+
+    cout << fixed << setprecision(15) << prob;
 
     return 0;
 }

@@ -20,32 +20,35 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
+bool overHalf (ll n, ll take) {
+    bool turn = 0;
+    ll a = 0, b = 0;
+    while (n) {
+        if (!turn) a += min(n,take), n -= min(n,take);
+        else {
+            if (n/10 <= 0) {a += n; break;}
+            b += n/10, n -= n/10;
+        }
+        turn = !turn;
+    }
+    return (a >= b);
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    ll n; cin >> n;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    ll low = 1, high = n;
+    while (high-low > 1) {
+        ll mid = (high+low)/2;
+        if (overHalf(n,mid)) high = mid;
+        else low = mid;
     }
+
+    if (overHalf(n,low)) high = low;
+
+    cout << high;
 
     return 0;
 }

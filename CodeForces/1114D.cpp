@@ -20,32 +20,32 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 5005;
+const int INF = 1e9+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int col[MAXN];
+int dp[MAXN][MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n; cin >> n;
+    forn(i,n) cin >> col[i+1];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+    col[0] = col[1], col[n+1] = col[n]; // así no cuento de más
+    forn(i,MAXN) forn(j,MAXN) dp[i][j] = INF;
+    dp[0][n] = dp[1][n+1] = 0;
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    forsn(l,1,n+1) dforsn(r,l,n+1) {
+        dp[l][r] = min(dp[l-1][r] + (col[l] != col[l-1]),dp[l][r+1] + (col[r] != col[r+1]));
+        if (col[l-1] == col[r+1] && col[l] != col[l-1] && col[r] != col[r+1])
+            dp[l][r] = min(dp[l-1][r+1]+1,dp[l][r]);
     }
+
+    int mini = INF;
+    forsn(j,1,n+1) mini = min(mini,dp[j][j]);
+
+    cout << mini;
 
     return 0;
 }

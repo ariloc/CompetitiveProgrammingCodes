@@ -20,32 +20,34 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
-
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    string s; cin >> s;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    string z,norm;
+    bool cond[4] = {0,0,0,0}; // 1,6,8,9 found
+    forn(j,s.size()) {
+        if (s[j] == '0') z.pb('0');
+        else if (s[j] == '1' && !cond[0]) cond[0] = 1;
+        else if (s[j] == '6' && !cond[1]) cond[1] = 1;
+        else if (s[j] == '8' && !cond[2]) cond[2] = 1;
+        else if (s[j] == '9' && !cond[3]) cond[3] = 1;
+        else norm.pb(s[j]);
     }
+
+    int rest = 0;
+    forn(j,norm.size()) rest = (rest*10 + norm[j]-'0')%7;// sacamos resto hasta acá
+
+    int arr[4] = {1,6,8,9};
+    do {
+        int aux = rest; forn(i,4) aux = (10*aux + arr[i])%7;
+        if (!aux) break;
+    } while (next_permutation(arr,arr+4));
+
+    cout << norm;
+    forn(i,4) cout << arr[i];
+    cout << z;
 
     return 0;
 }

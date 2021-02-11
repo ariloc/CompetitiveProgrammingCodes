@@ -20,31 +20,30 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 1005;
+const int INF = 1e9+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ii targets[MAXN];
+int penTAd[MAXN];
+ld dp[MAXN];
 
 int main() {
-    FAST_IO;
+    int n;
+    while (scanf("%d",&n) != EOF) {
+        if (!n) break;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+        targets[0] = {0,0}; // reset
+        targets[n+1] = {100,100};
+        penTAd[0] = penTAd[n+1] = 0;
+        forsn(i,1,n+2) dp[i] = INF;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+        forn(i,n) scanf("%d %d %d",&targets[i+1].fst,&targets[i+1].snd,&penTAd[i+1]);
+        forsn(i,1,n+2) penTAd[i] += penTAd[i-1];
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        forsn(i,1,n+2) forn(j,i)
+            dp[i] = min(dp[i],dp[j]+hypot(abs(targets[j].fst-targets[i].fst),abs(targets[j].snd-targets[i].snd))+penTAd[i-1]-penTAd[j]+1);
+
+        printf("%.3Lf\n",dp[n+1]);
     }
 
     return 0;

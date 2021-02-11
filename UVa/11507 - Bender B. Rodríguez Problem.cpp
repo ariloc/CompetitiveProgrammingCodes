@@ -20,31 +20,39 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int redir[6][4] = { // si estoy en... y hago cierto mov
+    {5,4,0,0},
+    {4,5,1,1},
+    {2,2,5,4},
+    {3,3,4,5},
+    {0,1,2,3},
+    {1,0,3,2}
+};
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+map<string,int> ids;
+map<int,string> revIds;
 
 int main() {
-    FAST_IO;
+    // relaciones
+    ids["+y"] = 0, revIds[0] = "+y";
+    ids["-y"] = 1, revIds[1] = "-y";
+    ids["+z"] = 2, revIds[2] = "+z";
+    ids["-z"] = 3, revIds[3] = "-z";
+    ids["+x"] = 4, revIds[4] = "+x";
+    ids["-x"] = 5, revIds[5] = "-x";
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int l;
+    while (cin >> l) {
+        if (!l) break;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+        int point = 4;
+        vector<string> ords;
+        forn(i,l-1) {
+            string aux; cin >> aux;
+            if (aux != "No") point = redir[point][ids[aux]];
         }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        cout << revIds[point] << '\n';
     }
 
     return 0;

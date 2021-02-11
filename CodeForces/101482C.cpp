@@ -20,32 +20,35 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 2005;
+const int MAXD = 22;
+const int INF = 1e9+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int dp[MAXN][MAXD];
+int prices[MAXN];
+
+int myRound (int x) {
+    if ((x%10) >= 5) return x+10-(x%10);
+    else return x-(x%10);
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n,d; cin >> n >> d;
+    forn(i,n) cin >> prices[i+1];
+    forsn(i,1,n+1) prices[i] += prices[i-1];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    forn(i,MAXN) forn(k,MAXD) dp[i][k] = INF;
+    forn(i,MAXN) dp[i][0] = myRound(prices[i]);
+    forsn(i,1,n+1) forn(j,i) forsn(k,1,d+1) {
+        dp[i][k] = min({dp[i][k],myRound(dp[j][k-1]+prices[i]-prices[j])});
     }
+
+    int mini = INF;
+    forn(i,d+1) mini = min(mini,dp[n][i]);
+
+    cout << mini;
 
     return 0;
 }

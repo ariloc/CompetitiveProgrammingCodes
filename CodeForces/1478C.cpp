@@ -20,31 +20,43 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 2e5+2;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ll arr[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        int n; cin >> n;
+        forn(j,2*n) cin >> arr[j];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        sort(arr,arr+n+n);
+
+        bool base = true;
+        for (int j = 0; j < 2*n; j += 2) if (arr[j] != arr[j+1]) {base = false; break;}
+        if (!base) {cout << "NO\n"; continue;}
+
+        for (int j = 0; j < 2*n; j += 2) arr[j/2] = arr[j]; // los unifico
+
+        ll toRest = 0;
+        bool posib = true;
+        set<ll> lst;
+        dforn(j,n) {
+            ll me = arr[j]-toRest;
+
+            if ((me%(((ll)j+1)*2LL)) || me <= 0) {posib = false; break;}
+
+            me /= (((ll)j+1)*2LL);
+
+            if (me <= 0 || lst.count(me)) {posib = false; break;}
+            lst.insert(me);
+
+            toRest += me*2LL;
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        cout << (posib ? "YES" : "NO") << '\n';
     }
 
     return 0;

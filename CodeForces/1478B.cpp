@@ -20,31 +20,38 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 102;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int dp[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        int q,d; cin >> q >> d;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        dp[0] = true;
+        forsn(j,1,MAXN) dp[j] = false;
+        forn(j,MAXN) {
+            forn(k,MAXN) {
+                if (j-k < 0) continue;
+                int aux = k;
+                bool yeah = false;
+                while (aux) {
+                    if ((aux%10) == d) {yeah = true; break;}
+                    aux /= 10;
+                }
+
+                if (yeah) dp[j] |= dp[j-k];
+            }
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        forn(j,q) {
+            int x; cin >> x;
+            if (x >= d*10) cout << "YES\n";
+            else cout << (dp[x] ? "YES" : "NO") << '\n';
+        }
     }
 
     return 0;

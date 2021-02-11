@@ -20,31 +20,47 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int TOP = 1e9+5;
+const ll INF = 9e18;
+const int INF_INT = 2e9+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+map<string,vector<ii>> comps;
+
+ll calcCost (int mid) {
+    ll r = 0;
+    for (auto &i : comps) {
+        int mini = INF_INT;
+        for (auto &j : i.snd)
+            if (j.snd >= mid) mini = min(mini,j.fst);
+        if (mini == INF_INT) return INF;
+        r += mini;
+    }
+    return r;
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        comps.clear(); // reset
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        int n,b; cin >> n >> b;
+        forn(j,n) {
+            string typ,name; int pr,qual; cin >> typ >> name >> pr >> qual;
+            comps[typ].pb({pr,qual});
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        int low = 0, high = TOP;
+        while (high-low > 1) {
+            int mid = (high+low)/2;
+            if (calcCost(mid) <= b) low = mid;
+            else high = mid;
+        }
+
+        if (calcCost(high) <= b) low = high;
+
+        cout << low << '\n';
     }
 
     return 0;

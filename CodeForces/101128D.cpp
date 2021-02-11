@@ -20,32 +20,27 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 42;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int dp[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n,m; cin >> n >> m;
+    forsn(i,1,n+1) forsn(j,1,m+1) dp[i+j]++;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+    int maxi = 0;
+    vi prob;
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    forn(j,MAXN) {
+        if (dp[j] > maxi) maxi = dp[j], prob.clear();
+        if (dp[j] == maxi) prob.pb(j);
     }
+
+    sort(all(prob));
+
+    for (auto &i : prob) cout << i << '\n';
 
     return 0;
 }

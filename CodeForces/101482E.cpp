@@ -20,32 +20,29 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int TOP = 2500;
+const ld EPS = 1e-13;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ld n,p,s,v;
+
+ld fun(ld c) {
+    return s*((ld)1 + 1/c)/v + (n*pow(log2(n),c*sqrt(2)))/(p*(ld)1e9); // OBLIGADO A USAR POW :'v
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+     cin >> n >> p >> s >> v;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    int cnt = TOP;
+    ld l = 0, r = TOP;
+    while (cnt--) {
+        ld tl = (2*l + r)/3, tr = (l + 2*r)/3;
+        if (fun(tl) < fun(tr)) r = tr;
+        else l = tl;
     }
+
+    cout << fixed << setprecision(15) << fun(l) << ' ' << l;
 
     return 0;
 }

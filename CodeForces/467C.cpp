@@ -20,32 +20,25 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 5005;
+const ll INF = 9e18;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ll dp[MAXN][MAXN];
+ll TAd[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n,m,k; cin >> n >> m >> k;
+    forn(i,n) cin >> TAd[i+1];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+    forsn(i,1,n+1) TAd[i] += TAd[i-1];
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
-    }
+    forsn(i,1,MAXN) forsn(j,1,MAXN) dp[i][j] = -INF;
+    forsn(r,m,n+1) forsn(i,1,k+1)
+        dp[r][i] = max(dp[r-1][i],dp[r-m][i-1]+TAd[r]-TAd[r-m]);
+
+    cout << dp[n][k];
 
     return 0;
 }

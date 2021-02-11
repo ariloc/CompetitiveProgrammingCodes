@@ -20,32 +20,33 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 1e6+5;
+const int MOD = 1e9+7;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+bitset<MAXN> done;
+
+int binExp (int a, int k) {
+    int r = 1;
+    while (k) {
+        if (k&1) r = (r*(ll)a)%MOD;
+        a = (a*(ll)a)%MOD; k >>= 1;
+    }
+    return r;
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int p,k; cin >> p >> k;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    int cycles = 0;
+    forsn(i,1,p) {
+        if (done[i]) continue;
+        int aux = i; cycles++;
+        while (!done[aux]) done[aux] = true, aux = ((ll)aux*k)%p;
     }
+
+    cout << binExp(p,cycles+(k == 1));
 
     return 0;
 }

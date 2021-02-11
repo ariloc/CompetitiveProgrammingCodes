@@ -20,32 +20,36 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 1002;
+const ld EPS = 1e-10;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int a[MAXN],b[MAXN];
+
+bool canArrive (int n, int rW, ld w) {
+    forn(i,n) {
+        w -= (rW+w)/(ld)a[i];
+        w -= (rW+w)/(ld)b[(i+1)%n];
+    }
+    return (w >= 0);
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n,m; cin >> n >> m;
+    forn(i,n) cin >> a[i];
+    forn(i,n) cin >> b[i];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    ld low = 0, high = 1e9+2;
+    while (high-low > EPS) {
+        ld mid = (high+low)/2;
+        if (canArrive(n,m,mid)) high = mid;
+        else low = mid;
     }
+
+    if (canArrive(n,m,low)) high = low;
+    if (!canArrive(n,m,high)) return cout << -1, 0;
+    cout << fixed << setprecision(10) << high;
 
     return 0;
 }

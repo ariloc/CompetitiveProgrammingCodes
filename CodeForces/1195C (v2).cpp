@@ -20,32 +20,20 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 1e5+10;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ll rows[MAXN][2], dp[MAXN][2];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n; cin >> n;
+    forn(i,n) cin >> rows[i+2][0];
+    forn(i,n) cin >> rows[i+2][1];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+    forsn(i,2,n+2) forn(j,2) dp[i][j] = max(dp[i-1][1^j],dp[i-2][1^j])+rows[i][j];
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
-    }
+    cout << max({dp[n+1][0],dp[n+1][1],dp[n][0],dp[n][1]});
 
     return 0;
 }

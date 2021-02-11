@@ -20,31 +20,33 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 3e5+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+set<int> apps[MAXN];
+set<ii> notif;
+int prox_libre = 1;
 
 int main() {
     FAST_IO;
 
     int n,q; cin >> n >> q;
     forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
-
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
+        int typ,x; cin >> typ >> x;
+        if (typ == 1) {
+            apps[x].insert(prox_libre);
+            notif.insert({prox_libre++,x});
+        }
+        else if (typ == 2) {
+            for (auto &j : apps[x]) notif.erase({j,x});
+            apps[x].clear();
         }
         else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+            vector<set<ii>::iterator> toDel;
+            for (auto it = notif.begin(); it != notif.end() && (*it).fst <= x; it++)
+                toDel.pb(it), apps[(*it).snd].erase((*it).fst);
+            for (auto &j : toDel) notif.erase(j);
         }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        cout << notif.size() << '\n';
     }
 
     return 0;

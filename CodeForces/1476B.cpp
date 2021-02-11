@@ -20,31 +20,41 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 102;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+ll p[MAXN],ch[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        int n,k; cin >> n >> k;
+        forn(j,n) cin >> p[j];
+        forn(j,n) ch[j] = 0; // reset;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        ld coef = (k/(ld)100);
+
+        ll actP = p[0];
+        forsn(j,1,n) {
+            ld me = p[j]/(ld)actP;
+            //cerr << me << ' ' << actP << endl;
+            if (me > coef) {
+                //cerr << "OKK" << endl;
+                ll tg = (ld)p[j]/coef;
+                if ((p[j]/(ld)tg) > coef) tg++; // trunc issues
+                ch[j-1] = tg-actP;
+            }
+            actP += p[j];
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        ll accDif = 0, rta = 0;
+        forn(j,n-1) {
+            ll aux = max(0LL,ch[j]-accDif);
+            accDif += aux; rta += aux;
+        }
+
+        cout << rta << '\n';
     }
 
     return 0;

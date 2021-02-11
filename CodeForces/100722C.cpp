@@ -13,6 +13,7 @@
 #define fst first
 #define snd second
 #define FAST_IO ios::sync_with_stdio(false);cin.tie(nullptr);
+#define PI acos(-1)
 
 using namespace std;
 typedef vector<int> vi;
@@ -20,31 +21,40 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 1e4+5;
+const ld EPS = 1e-6;
+const ld TOP = 4e12;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int pies[MAXN],n,f;
+
+ld cylVol (ll r, ll h) {
+    return PI*r*r*h;
+}
+
+ll cntPc (ld v) {
+    ll r = 0;
+    forn(i,n) r += ll(cylVol(pies[i],1)/v);
+    return r;
+}
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        cin >> n >> f; f++;
+        forn(j,n) cin >> pies[j];
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        ld low = 0, high = TOP;
+        while (high-low > EPS) {
+            ld mid = (high+low)/2;
+            if (cntPc(mid) >= f) low = mid;
+            else high = mid;
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        if (cntPc(high) >= f) low = high;
+
+        cout << fixed << setprecision(15) << low << '\n';
     }
 
     return 0;

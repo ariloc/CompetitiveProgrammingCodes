@@ -20,32 +20,34 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
-
-bool maze[2][MAXN];
-set<ii> conf[2];
-
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n,k; cin >> n >> k;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
-        }
+    auto comp = [](const int &lhs, const int &rhs) {
+        return (lhs%10) < (rhs%10); // menor resto --> priority queue va por mayor --> mayor resto es menos falta para el próx múltiplo de 10
+    };
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+    priority_queue<int,vi,decltype(comp)> Q(comp);
+    ll s = 0;
+    forn(i,n) {
+        int x; cin >> x;
+        if (x < 100) Q.push(x);
+        else s += 10;
     }
+
+    while (!Q.empty() && k) {
+        auto e = Q.top(); Q.pop();
+        int v = min(k,10-(e%10));
+        e += v; k -= v;
+        if (e == 100) s += 10;
+        else Q.push(e);
+    }
+
+    while (!Q.empty()) s += Q.top()/10, Q.pop();
+
+    cout << s;
 
     return 0;
 }

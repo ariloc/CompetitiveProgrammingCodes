@@ -20,31 +20,31 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXN = 3e5+2;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int rta[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int t; cin >> t;
+    forn(i,t) {
+        int n; cin >> n;
+        string s; cin >> s;
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+        forn(j,n+1) rta[j] = 0; // reset
+
+        int r = 1;
+        forn(l,n) {
+            if (l >= r) r = l+1;
+            while (r < n && s[r] != s[r-1]) r++;
+            //cerr << l << ' ' << r << ' ' << rta[n] << endl;
+            forsn(j,l,r+1) if (s[j] == 'R') rta[j] += (r-j);
+            dforsn(j,l,r) if (s[j] == 'L') rta[j+1] += (j+1-l);
+            l = r-1;
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        forn(j,n+1) cout << rta[j]+1 << " \n"[j == n];
     }
 
     return 0;

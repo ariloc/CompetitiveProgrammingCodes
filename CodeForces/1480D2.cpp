@@ -21,31 +21,35 @@ typedef long double ld;
 typedef pair<int,int> ii;
 
 const int MAXN = 1e5+5;
+const int INF = 1e9+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+int arr[MAXN],a[MAXN],b[MAXN],idx[MAXN],ind1 = 0, ind2 = 0;
+vi pos[MAXN];
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    int n; cin >> n;
+    forn(i,n) cin >> arr[i];
+    forn(i,n) pos[arr[i]].pb(i);
+    forn(i,n+1) pos[i].pb(INF), pos[i].pb(INF); // dummys
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
+    int topA = 0, topB = 0;
+    forn(i,n) {
+        if (arr[i] == topA) a[ind1++] = topA = arr[i];
+        else if (arr[i] == topB) b[ind2++] = topB = arr[i];
         else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+            if (pos[topA][idx[topA]] > pos[topB][idx[topB]]) a[ind1++] = topA = arr[i];
+            else b[ind2++] = topB = arr[i];
         }
-
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        idx[arr[i]]++;
     }
+
+    int seg = (ind1 > 0) + (ind2 > 0);
+    forsn(i,1,ind1) seg += (a[i] != a[i-1]);
+    forsn(i,1,ind2) seg += (b[i] != b[i-1]);
+
+    cout << seg;
 
     return 0;
 }

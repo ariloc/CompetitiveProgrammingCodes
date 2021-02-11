@@ -20,31 +20,38 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+5;
+const int MAXL = 1e4+5;
 
-bool maze[2][MAXN];
-set<ii> conf[2];
+char inp[MAXL];
+map<char,ll> vals;
 
 int main() {
     FAST_IO;
 
-    int n,q; cin >> n >> q;
-    forn(i,q) {
-        int x,y; cin >> x >> y; x--; // dejo los y bien por comodidad
-        maze[x][y] ^= 1;
+    //freopen("entrada.txt","r",stdin);
+    //freopen("salida.txt","w",stdout);
 
-        if (maze[x][y]) {
-            if (maze[1^x][y-1]) conf[x].insert({y,y-1}), conf[1^x].insert({y-1,y});
-            if (maze[1^x][y]) conf[x].insert({y,y}), conf[1^x].insert({y,y});
-            if (maze[1^x][y+1]) conf[x].insert({y,y+1}), conf[1^x].insert({y+1,y});
-        }
-        else {
-            if (maze[1^x][y-1]) conf[x].erase({y,y-1}), conf[1^x].erase({y-1,y});
-            if (maze[1^x][y]) conf[x].erase({y,y}), conf[1^x].erase({y,y});
-            if (maze[1^x][y+1]) conf[x].erase({y,y+1}), conf[1^x].erase({y+1,y});
+    int t; cin >> t;
+    forn(o,t) {
+        vals.clear();
+
+        int k; cin >> k;
+        forn(i,k) {
+            char c; ll v; cin >> c >> v;
+            vals[c] = v;
         }
 
-        cout << (conf[0].empty() && conf[1].empty() ? "Yes" : "No") << '\n';
+        string s;
+        int m; cin >> m; getline(cin,s);
+        ld pay = 0;
+        forn(i,m) {
+            getline(cin,s);
+            forn(j,s.size()) pay += vals[s[j]];
+        }
+
+        pay /= 100;
+
+        cout << fixed << setprecision(2) << pay << "$\n";
     }
 
     return 0;
