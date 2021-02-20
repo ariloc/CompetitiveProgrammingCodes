@@ -20,43 +20,41 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 2e5+5;
-const int INF = 1e9+5;
+const int MAXN = 1e4+5;
 
 vi G[MAXN];
-int D1[MAXN],D2[MAXN],spec[MAXN],dpR[MAXN];
+bitset<MAXN> done;
+int prox_libre = 0;
+ii rta[MAXN];
 
-void bfs (int st, int D[]) {
-    queue<ii> Q; Q.push({st,0}); D[st] = 0;
+void dfs (int st) {
+    done[st] = true;
+    rta[st].snd = prox_libre++;
 
-    while (!Q.empty()) {
-        auto e = Q.front(); Q.pop();
-
-        for (auto &i : G[e.fst])
-            if (D[i] == -1) D[i] = e.snd+1, Q.push({i,D[i]});
-    }
+    // para el primero ambas pueden ser nuevas bandas
+    // entonces si tengo más de una arista libre, entonces encajo mi frecuencia vieja así suma uno más en tal caso
+    bool pass = 0;
+    for (auto &i : G[st])
+        if (!done[i]) {
+            rta[i].fst = (!pass ? rta[st].snd : rta[st].fst);
+            dfs(i);
+            pass = 1;
+        }
 }
 
 int main() {
-    FAST_IO;
-
-    forn(i,MAXN) D1[i] = D2[i] = -1; // init
-
-    int n,m,k; cin >> n >> m >> k;
-    forn(i,k) {int x; cin >> x; x--; spec[i] = x;}
-    forn(i,m) {
-        int u,v; cin >> u >> v; u--, v--;
+    int n; scanf("%d",&n);
+    forn(i,n-1) {
+        int u,v; scanf("%d %d",&u,&v); u--, v--;
         G[u].pb(v), G[v].pb(u);
     }
 
-    bfs(0,D1), bfs(n-1,D2);
+    rta[0].fst = prox_libre++;
+    dfs(0);
 
-    int maxi = 0;
-    sort(spec,spec+k,[&](const int &lhs, const int &rhs){return D1[lhs] < D1[rhs];}); // menor a mayor al origen
-    dforn(i,k) dpR[i] = max(dpR[i+1],D2[spec[i]]); // el mayor a este punto
-    forn(i,k-1) maxi = max(maxi,D1[spec[i]]+dpR[i+1]+1);
+    forn(i,n) if (((int)G[i].size() == 1)) rta[i] = rta[G[i][0]]; // con las hojas vamos a doble banda
 
-    cout << min(maxi,D2[0]);
+    forn(i,n) printf("%d %d\n",rta[i].fst,rta[i].snd);
 
     return 0;
 }

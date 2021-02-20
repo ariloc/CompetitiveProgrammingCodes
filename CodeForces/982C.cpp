@@ -20,28 +20,27 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 2e5+5;
+const int MAXN = 1e5+5;
 
 vi G[MAXN];
-bitset<MAXN> done,mark;
-int maxi = -1, nod = -1;
+bitset<MAXN> done;
+int rta = 0;
 
-void dfs (int st, int dep) {
+int dfs (int st) {
     done[st] = true;
-    if (dep > maxi) maxi = dep, nod = st;
+    //cerr << st << "!!!!" << endl;
 
+    int sum = 0;
     for (auto &i : G[st])
-        if (!done[i] && !mark[i]) dfs(i,dep+1);
-}
+        if (!done[i]) {
+            int aux = dfs(i);
+            if (!(aux&1) && aux) rta++;
+            else sum += aux;
+            //cerr << i << ' ' << aux << ' ' << st << ' ' << sum << ' ' << rta << endl;
+        }
 
-bool dfs2 (int st, int nd) {
-    done[st] = true;
-
-    bool stat = 0;
-    for (auto &i : G[st])
-        if (!done[i]) stat |= dfs2(i,nd);
-
-    return mark[st] = stat|(st == nd);
+    if (sum&1) {rta++; return 0;}
+    return sum+1;
 }
 
 int main() {
@@ -52,22 +51,13 @@ int main() {
         int u,v; cin >> u >> v; u--, v--;
         G[u].pb(v), G[v].pb(u);
     }
+    if (n&1) return cout << -1, 0;
 
-    int prim,sec,terc = -1;
-    dfs(0,0); prim = nod; done.reset();
-    nod = maxi = -1; dfs(prim,0); sec = nod; done.reset();
-    int dist1 = maxi;
+    int leaf = -1;
+    forn(i,n) if (G[i].size() <= 1) {leaf = i; break;}
 
-    dfs2(prim,sec); done.reset(); // marcar camino
-
-    int dist2 = -1; // así al menos terc engancha 1
-    forn(i,n) if (mark[i]) { //cerr << i << ' ' << prim << ' ' << sec << endl;
-        nod = maxi = -1, dfs(i,0); // las ramas restantes de c/u, puedo usar dfs siempre porque antes no marqué nada y es todo 0
-        if (maxi > dist2 && i != prim && i != sec) dist2 = maxi, terc = nod;
-    }
-
-    cout << dist1+dist2 << '\n';
-    cout << prim+1 << ' ' << sec+1 << ' ' << terc+1;
+    dfs(leaf);
+    cout << rta-1;
 
     return 0;
 }

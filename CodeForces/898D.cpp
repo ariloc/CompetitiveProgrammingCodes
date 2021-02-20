@@ -21,42 +21,40 @@ typedef long double ld;
 typedef pair<int,int> ii;
 
 const int MAXN = 2e5+5;
-const int INF = 1e9+5;
+const int MAXD = 1e6+5;
 
-vi G[MAXN];
-int D1[MAXN],D2[MAXN],spec[MAXN],dpR[MAXN];
+int FT[MAXD];
+set<int> nums;
 
-void bfs (int st, int D[]) {
-    queue<ii> Q; Q.push({st,0}); D[st] = 0;
+void setFT (int p, int v) {
+    for (int i = p; i < MAXD; i += i & -i)
+        FT[i] += v;
+}
 
-    while (!Q.empty()) {
-        auto e = Q.front(); Q.pop();
-
-        for (auto &i : G[e.fst])
-            if (D[i] == -1) D[i] = e.snd+1, Q.push({i,D[i]});
-    }
+int getFT (int p) {
+    int r = 0;
+    for (int i = p; i; i -= i & -i)
+        r += FT[i];
+    return r;
 }
 
 int main() {
     FAST_IO;
 
-    forn(i,MAXN) D1[i] = D2[i] = -1; // init
-
     int n,m,k; cin >> n >> m >> k;
-    forn(i,k) {int x; cin >> x; x--; spec[i] = x;}
-    forn(i,m) {
-        int u,v; cin >> u >> v; u--, v--;
-        G[u].pb(v), G[v].pb(u);
+    forn(i,n) {int x; cin >> x; nums.insert(x); setFT(x,1);}
+
+    forsn(i,1,MAXD-m+1) {
+        int v = getFT(i+m-1)-(i != 1 ? getFT(i-1) : 0);
+        if (v >= k) {
+            auto it = nums.upper_bound(i+m-1);
+            it--; vi toDel;
+            while ((*it) >= i && v >= k) setFT(*it,-1), toDel.pb(*it), it--, v--;
+            for (auto &j : toDel) nums.erase(j);
+        }
     }
 
-    bfs(0,D1), bfs(n-1,D2);
-
-    int maxi = 0;
-    sort(spec,spec+k,[&](const int &lhs, const int &rhs){return D1[lhs] < D1[rhs];}); // menor a mayor al origen
-    dforn(i,k) dpR[i] = max(dpR[i+1],D2[spec[i]]); // el mayor a este punto
-    forn(i,k-1) maxi = max(maxi,D1[spec[i]]+dpR[i+1]+1);
-
-    cout << min(maxi,D2[0]);
+    cout << n-(int)nums.size();
 
     return 0;
 }

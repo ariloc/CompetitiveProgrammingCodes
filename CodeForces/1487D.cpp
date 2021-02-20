@@ -20,43 +20,27 @@ typedef long long ll;
 typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 2e5+5;
-const int INF = 1e9+5;
+const int TOP = 1e9;
 
-vi G[MAXN];
-int D1[MAXN],D2[MAXN],spec[MAXN],dpR[MAXN];
-
-void bfs (int st, int D[]) {
-    queue<ii> Q; Q.push({st,0}); D[st] = 0;
-
-    while (!Q.empty()) {
-        auto e = Q.front(); Q.pop();
-
-        for (auto &i : G[e.fst])
-            if (D[i] == -1) D[i] = e.snd+1, Q.push({i,D[i]});
-    }
-}
+vi nums;
 
 int main() {
     FAST_IO;
 
-    forn(i,MAXN) D1[i] = D2[i] = -1; // init
-
-    int n,m,k; cin >> n >> m >> k;
-    forn(i,k) {int x; cin >> x; x--; spec[i] = x;}
-    forn(i,m) {
-        int u,v; cin >> u >> v; u--, v--;
-        G[u].pb(v), G[v].pb(u);
+    // precalc
+    for (ll a = 1; a*a <= 2*TOP + 1; a++) {
+        ll c = a*a + 1;
+        if (c&1) continue; // tiene que poder dividirse por 2
+        c /= 2LL;
+        if (a < c && c <= TOP) nums.pb(c); // check de cotas
     }
 
-    bfs(0,D1), bfs(n-1,D2);
-
-    int maxi = 0;
-    sort(spec,spec+k,[&](const int &lhs, const int &rhs){return D1[lhs] < D1[rhs];}); // menor a mayor al origen
-    dforn(i,k) dpR[i] = max(dpR[i+1],D2[spec[i]]); // el mayor a este punto
-    forn(i,k-1) maxi = max(maxi,D1[spec[i]]+dpR[i+1]+1);
-
-    cout << min(maxi,D2[0]);
+    int t; cin >> t;
+    forn(o,t) {
+        int n; cin >> n;
+        int ind = upper_bound(all(nums),n)-nums.begin();
+        cout << ind << '\n';
+    }
 
     return 0;
 }
