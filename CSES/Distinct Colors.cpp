@@ -21,6 +21,15 @@ typedef pair<int,int> ii;
 const int MAXN = 2e5+5;
 const int INF = 1e9+5;
 
+void fs (int &x) {
+    int c; x = 0; bool neg = false;
+    c = getchar_unlocked(); neg |= (c == '-');
+    if (c < '0' || c > '9') c = getchar_unlocked(), neg |= (c == '-');
+    for (; c>='0' && c<='9'; c = getchar_unlocked())
+        x = 10*x + c-'0';
+    if (neg) x *= -1;
+}
+
 struct query {
     int l,r,id;
 
@@ -75,14 +84,14 @@ int getFT (int p) {
 }
 
 int main() {
-    int n; scanf("%d",&n);
+    int n; fs(n);
 
     forn(i,n) {
-        scanf("%d",&col[i]);
+        fs(col[i]);
         col2[i] = {col[i],i};
     }
     forn(i,n-1) {
-        int a,b; scanf("%d %d",&a,&b); a--; b--;
+        int a,b; fs(a), fs(b); a--; b--;
         G[a].pb(b); G[b].pb(a);
     }
 
