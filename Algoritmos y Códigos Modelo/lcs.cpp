@@ -38,8 +38,3 @@ int main() {
 
     return 0;
 }
-
-/// ESCRIBÍ en vez de tanto dar vueltas
-/// si te parece que no va PROBALO PRIMERO!
-/// CODEA LO BÁSICO PRIMERO!
-/// HACE C-A-S-O-S D-E P-R-U-E-B-A.A.A.A.A!!!

@@ -1,9 +1,13 @@
 #include <bits/stdc++.h>
 
+//#pragma GCC optimize("Ofast,unroll-loops")
+//#pragma GCC target("avx,avx2,fma")
+
 #define forn(i,n) for(int i = 0; i < int(n); i++)
 #define forsn(i,s,n) for(int i = int(s); i < int(n); i++)
 #define dforn(i,n) for (int i = int(n)-1; i >= 0; i--)
 #define dforsn(i,s,n) for(int i = int(n)-1; i >= int(s); i--)
+#define dbg(x) cerr << #x << " = " << x << endl;
 #define all(c) (c).begin(),(c).end()
 #define pb push_back
 #define fst first
@@ -13,42 +17,33 @@
 using namespace std;
 typedef vector<int> vi;
 typedef long long ll;
+typedef long double ld;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e6+5;
-
-int border[MAXN];
-
-void get_bordes (string s) {
-    int n = s.size();
-    forsn (i,1,n) {
-        int j = border[i-1];
-        while (j > 0 and s[i] != s[j])
-            j = border[j-1];
+vi KMPcompute (string s) { // saco los bordes, prefijos que son sufijos
+    int N = (int)s.size();
+    vi KMP(N,0);
+    forsn(i,1,N) {
+        int j = KMP[i-1];
+        while (j and s[i] != s[j])
+            j = KMP[j-1];
         if (s[i] == s[j]) j++;
-        border[i] = j;
+        KMP[i] = j;
     }
+    return KMP;
 }
 
 int main() {
     FAST_IO;
 
     string s; cin >> s;
-    get_bordes(s);
-
-    int ind = border[(int)s.size()-1];
-    vi show; if (ind) show.pb(ind);
+ 
+    int ind = (int)s.size();
+    vi show, border = KMPcompute(s);
     while (ind and border[ind-1]) {
         ind = border[ind-1];
         show.pb(ind);
     }
-
+ 
     dforn(i,show.size()) cout << show[i] << ' ';
-
-    return 0;
 }
-
-/// ESCRIBÍ en vez de tanto dar vueltas
-/// si te parece que no va PROBALO PRIMERO!
-/// CODEA LO BÁSICO PRIMERO!
-/// HACE C-A-S-O-S D-E P-R-U-E-B-A.A.A.A.A!!!
