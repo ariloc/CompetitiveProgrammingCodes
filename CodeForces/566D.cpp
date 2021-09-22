@@ -18,9 +18,7 @@ typedef pair<int,int> ii;
 const int INF = 1e9+2;
 const int MAXN = 2e5+5;
 
-vector<ii> UFRanges(MAXN,{INF,-1});
-
-struct DS {
+struct DS { // Union-Find con Path-Compression, porque why not.
     int p[MAXN], r[MAXN];
     void init() {
         memset(p,-1,sizeof(p));
@@ -28,7 +26,7 @@ struct DS {
     }
     int find(int &x) {return (p[x] == -1) ? x : (p[x] = find(p[x]));}
     bool sameTeam (int &a, int &b) {return (find(a) == find(b));}
-    void join (int a, int &b) {
+    void join (int a, int b) {
         if (sameTeam(a,b)) return;
         int x = find(a);
         int y = find(b);
@@ -41,30 +39,25 @@ struct DS {
 };
 
 DS UF;
+set<int> limits;
 
 int main() {
     UF.init();
 
     int n,q; scanf("%d %d",&n,&q);
+    forn (i,n) limits.insert(i+1);
 
-    int typ,a,b,me;
+    int typ,a,b;
     forn (i,q) {
         scanf("%d %d %d",&typ,&a,&b);
         if (typ == 1) {
             UF.join(a,b);
         }
         else if (typ == 2) {
-            set<int> tryJ;
-            forsn (j,a+1,b+1) {
-                UF.join(j-1,j);
-                me = UF.find(a);
-                if (UFRanges[me].snd != -1) j = max(j,UFRanges[me].snd);
-                tryJ.insert(me);
-            }
-            for (auto &o : tryJ) {
-                UFRanges[o].fst = min(a,UFRanges[o].fst);
-                UFRanges[o].snd = max(b,UFRanges[o].snd);
-            }
+            vi toDel; // eliminaré
+            auto it = limits.lower_bound(a); // empiezo uniendo desde el primero heterogéneo
+            while (it != limits.end() and *it < b) {toDel.pb(*it); UF.join(*it,(*it)+1); it++;} // así voy uniendo todo lo heterogéneo en el rango
+            forn(o,toDel.size()) limits.erase(toDel[o]); // homogeneizo el rango, así está registrado para la prox. Lo hago tal [a;b) pues uno hacia adelante
         }
         else {
             if (UF.sameTeam(a,b)) printf("YES\n");
@@ -75,7 +68,7 @@ int main() {
     return 0;
 }
 
-/// ESCRIB� en vez de tanto dar vueltas
+/// ESCRIBÍ en vez de tanto dar vueltas
 /// si te parece que no va PROBALO PRIMERO!
-/// CODEA LO B�SICO PRIMERO!
+/// CODEA LO BÁSICO PRIMERO!
 /// HACE C-A-S-O-S D-E P-R-U-E-B-A.A.A.A.A!!!
