@@ -1,0 +1,194 @@
+#include <bits/stdc++.h>
+
+//#pragma GCC optimize("Ofast,unroll-loops")
+//#pragma GCC target("avx,avx2,fma")
+
+#define forn(i,n) for(int i = 0; i < int(n); i++)
+#define forsn(i,s,n) for(int i = int(s); i < int(n); i++)
+#define dforn(i,n) for (int i = int(n)-1; i >= 0; i--)
+#define dforsn(i,s,n) for(int i = int(n)-1; i >= int(s); i--)
+#define dbg(x) cerr << #x << " = " << x << endl;
+#define all(c) (c).begin(),(c).end()
+#define pb push_back
+#define fst first
+#define snd second
+#define FAST_IO ios::sync_with_stdio(false);cin.tie(nullptr);
+
+using namespace std;
+typedef vector<int> vi;
+typedef pair<int,int> ii;
+typedef long long ll;
+typedef long double ld;
+
+const ld EPS = 1e-3;
+
+struct pt {
+    ld x,y;
+    pt(ld x, ld y) : x(x), y(y) {}
+    pt(){}
+
+    pt operator+ (const pt &o) const { return pt(x+o.x, y+o.y); }
+    pt operator- (const pt &o) const { return pt(x-o.x, y-o.y); }
+    ld operator% (const pt &o) const { return x*o.y - y*o.x; } // cross
+    ld operator* (const pt &o) const { return x*o.x + y*o.y; } // dot
+    pt operator* (const ld &o) const { return pt(x*o, y*o); } // product by scalar
+    ld norm2() { return *this**this; }
+    ld norm() { return sqrt(norm2()); }
+    
+    bool operator< (const pt &o) const { // cmp x,y
+        return (x < o.x || (x == o.x && y < o.y));
+    }
+
+    // Is the current point counter-clockwise of the vector defined by (b-a) ?
+    bool ccw (const pt &a, const pt &b) const {
+        return (b-a)%(*this-a) >= 0;
+    }
+
+    bool operator== (const pt &o) const {
+        return x == o.x && y == o.y;
+    }
+};
+
+struct ln {
+    pt x,xy;
+    ln(pt x, pt xy) : x(x), xy(xy){}
+    ln(){}
+
+    bool isInline (const pt &p) const {
+        return abs(xy % (x-p)) <= EPS;
+    }
+
+    pt intersect (const ln &o) const {
+        ld micro = ( xy % (x-o.x) ) / (ld)(xy % o.xy);
+        return o.x + (o.xy * micro);
+    }
+};
+
+vector<pt> chull (vector<pt> p) {
+    vector<pt> r;
+    sort(all(p));
+    forn(i,p.size()) { // lower hull
+        while ((int)r.size() >= 2 && r.back().ccw(r[(int)r.size()-2], p[i])) r.pop_back();
+        r.pb(p[i]);
+    }
+    r.pop_back(); int k = (int)r.size();
+    dforn(i,p.size()) {
+        while ((int)r.size() >= k+2 && r.back().ccw( r[(int)r.size()-2], p[i])) r.pop_back();
+        r.pb(p[i]);
+    }
+    r.pop_back();
+    return r;
+}
+
+
+ld calc (ln l, pt p) {
+    pt aux = p - l.x;
+    return (aux * l.xy) / aux.norm();
+}
+
+bool check (vector<pt> cities, pt sol) {
+    ln aux = ln(sol, pt(0,1)); // vertical line
+    
+    vector<pt> left, right, inLine;
+    for (auto &i : cities) {
+        if (aux.isInline(i)) inLine.pb(i);
+        else if (i.ccw(aux.x,aux.x+aux.xy)) left.pb(i);
+        else right.pb(i);
+    }
+
+    int cnt1 = 0, cnt2 = 0;
+    for (auto &i : inLine) {
+        if (abs(sol.x-i.x) <= EPS && abs(sol.y-i.y) <= EPS) continue;
+        if (calc(aux, i) < 0) cnt1++;
+        else cnt2++;
+    }
+
+    if (cnt1 != cnt2) return false;
+
+    auto cmp = [&](const pt &lhs, const pt &rhs){
+        return calc(aux, lhs) < calc(aux, rhs);
+    };
+
+    sort(all(left),cmp);
+    sort(all(right),cmp);
+    reverse(all(right));
+
+    if ((int)left.size() != (int)right.size()) return false;
+
+    forn(i,left.size()) {
+        pt ot = right[i];
+        pt me = left[i];
+
+        ln aux2 = ln(me, ot - me);
+
+        if (!aux2.isInline(sol)) return false;
+    }
+
+    return true;
+}
+
+vector<double> apuesta(vector<int> &x, vector<int> &y) {
+    vector<pt> cities;
+    forn(i,x.size()) cities.pb(pt(x[i],y[i]));
+
+    int n = (int)cities.size();
+    if (n&1) {
+        sort(all(cities));
+
+        pt rta = cities[n/2];
+        if (!check(cities,rta)) return {};
+        return {(double)rta.x, (double)rta.y};
+    }
+
+    vector<pt> cities_chull = chull(cities);
+
+    // all points are aligned...
+    if ((int)cities_chull.size() == 2) {
+        sort(all(cities));
+        pt a = cities[n/2-1], b = cities[n/2];
+        return {(double)(a.x+b.x)/2.0, (double)(a.y+b.y)/2.0};
+    }
+
+    vector<ln> toIntersect;
+
+    pt chosen = cities_chull[0];
+    ln chosenln = ln(chosen, chosen-cities_chull[1]);
+
+    cities.erase(find(all(cities),chosen));
+    n = (int)cities.size();
+
+    sort(all(cities), [&](const pt &lhs, const pt &rhs) {
+        return calc(chosenln,lhs) < calc(chosenln,rhs);
+    });
+    toIntersect.pb( ln(chosen, cities[n/2]-chosen) );
+
+    cities.pb(chosen); // reinsert deleted
+    n = (int)cities.size();
+
+    int ind = -1;
+    int m = (int)cities_chull.size();
+    forn(i,m) {
+        if (!toIntersect.back().isInline(cities_chull[i])) {
+            ind = i; break;
+        }
+    }
+    chosen = cities_chull[ind];
+    chosenln = ln(chosen, chosen-cities_chull[(ind+1)%m]);
+
+    cities.erase(find(all(cities),chosen));
+    n = (int)cities.size();
+
+    sort(all(cities), [&](const pt &lhs, const pt &rhs) {
+        return calc(chosenln,lhs) < calc(chosenln,rhs);
+    });
+    toIntersect.pb( ln(chosen, cities[n/2]-chosen ));
+
+    pt rta = toIntersect[0].intersect(toIntersect[1]);
+
+    cities.pb(chosen); // reinsert deleted
+
+    if (check(cities,rta))
+        return {(double)rta.x, (double)rta.y};
+    return {};
+}
+
