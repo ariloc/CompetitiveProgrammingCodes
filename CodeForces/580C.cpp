@@ -15,24 +15,25 @@ typedef vector<int> vi;
 typedef long long ll;
 typedef pair<int,int> ii;
 
-const int MAXN = 1e5+4;
+const int MAXN = 1e5+5;
 
-bitset<MAXN> cats;
-bitset<MAXN> done;
+bitset<MAXN> cat,done;
 vi G[MAXN];
-int n,m,rta = 0;
+int n,m;
 
-int dfs (int st, int accum) {
+int dfs(int st, int cnt) {
     done[st] = true;
 
-    int gone = 0;
-    for (auto &i : G[st]) {
-        if (done[i]) {gone++; continue;}
-        if ((cats[i] ? accum+1 : 0) > m) continue;
-        dfs(i,(cats[i] ? accum+1 : 0));
-    }
+    if (cnt > m) return 0;
 
-    if (gone == G[st].size() and st != 0) rta++;
+    int sum = 0; bool hasChildren = false;
+    for (auto &i : G[st])
+        if (!done[i]) {
+            hasChildren = true;
+            sum += dfs(i,(cat[i] ? cnt+(int)cat[i] : 0));
+        }
+
+    return sum + (int)(!hasChildren);
 }
 
 int main() {
@@ -40,16 +41,19 @@ int main() {
 
     cin >> n >> m;
 
-    forn (i,n) {int x; cin >> x; cats[i] = (bool)x;}
-
-    forn (i,n-1) {
-        int a,b;
-        cin >> a >> b; a--; b--;
-        G[a].push_back(b);
-        G[b].push_back(a);
+    forn(i,n) {int x; cin >> x; cat[i] = x;}
+    forn(i,n-1) {
+        int a,b; cin >> a >> b; a--; b--;
+        G[a].pb(b);
+        G[b].pb(a);
     }
 
-    dfs(0,(cats[0] ? 1 : 0)); cout << rta;
+    cout << dfs(0,(int)cat[0]);
 
     return 0;
 }
+
+/// ESCRIBÍ en vez de tanto dar vueltas
+/// si te parece que no va PROBALO PRIMERO!
+/// CODEA LO BÁSICO PRIMERO!
+/// HACE C-A-S-O-S D-E P-R-U-E-B-A.A.A.A.A!!!

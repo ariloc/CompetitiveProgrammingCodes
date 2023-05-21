@@ -1,9 +1,13 @@
 #include <bits/stdc++.h>
 
+//#pragma GCC optimize("Ofast,unroll-loops")
+//#pragma GCC target("avx,avx2,fma")
+
 #define forn(i,n) for(int i = 0; i < int(n); i++)
 #define forsn(i,s,n) for(int i = int(s); i < int(n); i++)
 #define dforn(i,n) for (int i = int(n)-1; i >= 0; i--)
 #define dforsn(i,s,n) for(int i = int(n)-1; i >= int(s); i--)
+#define dbg(x) cerr << #x << " = " << x << endl;
 #define all(c) (c).begin(),(c).end()
 #define pb push_back
 #define fst first
@@ -12,48 +16,80 @@
 
 using namespace std;
 typedef vector<int> vi;
-typedef long long ll;
 typedef pair<int,int> ii;
+typedef long long ll;
+typedef long double ld;
 
 const int MAXN = 1e5+5;
 
-bitset<MAXN> cat,done;
 vi G[MAXN];
-int n,m;
 
-int dfs(int st, int cnt) {
+char rta[MAXN];
+bitset<MAXN> done, centroid;
+vi pass;
+int cent;
+
+void reset() {
+    for (auto &i : pass) done[i] = false;
+    pass.clear();
+}
+
+int find_centroid (int st, int n) {
+    done[st] = true;
+    pass.pb(st);
+
+    bool posib = true;
+    int s = 0;
+    for (auto &i : G[st]) {
+        if (!done[i] && !centroid[i]) {
+            int aux = find_centroid(i,n);
+            s += aux;
+            if (aux > n/2) posib = false;
+        }
+    }
+
+    if (n-s-1 > n/2) posib = false;
+
+    if (posib) cent = st;
+
+    return s+1;
+}
+
+int dfs (int st) {
+    pass.pb(st);
     done[st] = true;
 
-    if (cnt > m) return 0;
+    int s = 1;
+    for (auto &i : G[st]) if (!done[i] && !centroid[i]) s += dfs(i);
 
-    int sum = 0; bool hasChildren = false;
-    for (auto &i : G[st])
-        if (!done[i]) {
-            hasChildren = true;
-            sum += dfs(i,(cat[i] ? cnt+(int)cat[i] : 0));
-        }
+    return s;
+}
 
-    return sum + (int)(!hasChildren);
+void solve (int st, char c) {
+    int n = dfs(st);
+    reset();
+
+    find_centroid(st,n);
+    reset();
+
+    rta[cent] = c;
+    centroid[cent] = true;
+
+    for (auto &i : G[cent])
+        if (!centroid[i])
+            solve(i,c+1);
 }
 
 int main() {
-    FAST_IO;
-
-    cin >> n >> m;
-
-    forn(i,n) {int x; cin >> x; cat[i] = x;}
+    int n; cin >> n;
     forn(i,n-1) {
-        int a,b; cin >> a >> b; a--; b--;
-        G[a].pb(b);
-        G[b].pb(a);
+        int u,v; cin >> u >> v; u--, v--;
+        G[u].pb(v), G[v].pb(u);
     }
+    
+    solve(0, 'A');
 
-    cout << dfs(0,(int)cat[0]);
-
+    forn(i,n) cout << rta[i] << ' ';
+    
     return 0;
 }
-
-/// ESCRIBÍ en vez de tanto dar vueltas
-/// si te parece que no va PROBALO PRIMERO!
-/// CODEA LO BÁSICO PRIMERO!
-/// HACE C-A-S-O-S D-E P-R-U-E-B-A.A.A.A.A!!!
