@@ -1,98 +1,101 @@
 #include <bits/stdc++.h>
-
+ 
+//#pragma GCC optimize("Ofast,unroll-loops")
+//#pragma GCC target("avx,avx2,fma")
+ 
 #define forn(i,n) for(int i = 0; i < int(n); i++)
 #define forsn(i,s,n) for(int i = int(s); i < int(n); i++)
 #define dforn(i,n) for (int i = int(n)-1; i >= 0; i--)
 #define dforsn(i,s,n) for(int i = int(n)-1; i >= int(s); i--)
+#define dbg(x) cerr << #x << " = " << x << endl;
 #define all(c) (c).begin(),(c).end()
 #define pb push_back
 #define fst first
 #define snd second
 #define FAST_IO ios::sync_with_stdio(false);cin.tie(nullptr);
-
+ 
 using namespace std;
 typedef vector<int> vi;
-typedef long long ll;
 typedef pair<int,int> ii;
+typedef long long ll;
+typedef long double ld;
 
-const int MAXN = 2e5;
+int const MAXN = 2e5;
 
-void fastscan(int &num) { // getchar_unlocked() mejor que getchar(), mejor que scanf()
-    register int c;
-    c=getchar_unlocked();
-    for (; (c>47 && c<58); c=getchar_unlocked())
-        {num = num*10 + c - 48;}
+void fs (int &x) {
+    char c = getchar_unlocked();
+    if (c < '0' || c > '9') c = getchar_unlocked();
+    for(; c >= '0' && c <= '9'; c = getchar_unlocked())
+        x = 10*x + c-'0';
 }
 
 int arr[MAXN];
-priority_queue<ii> low; // max queue tiene los primeros n/2(+1) menores
-priority_queue<ii,vector<ii>,greater<ii>> high; // min queue tiene los ultimos n/2 mayores
-
-bool isLeft (int ind, int pInd, int pLow, int pHigh) { // check is estaba en la queue low antes
-    if (arr[ind] < pLow) return true;
-    else if (arr[ind] == pLow) {
-        if (arr[ind] == pHigh) {
-            if (pInd >= ind) return true;
-            return false;
-        }
-        return true;
-    }
-    return false;
-}
+bool assigned[MAXN];
+priority_queue<ii,vector<ii>,greater<ii>> QH;
+priority_queue<ii> QL;
+ll sl = 0, sh = 0;
+int n,k;
 
 int main() {
-    int n=0,k=0; fastscan(n); fastscan(k);
-    forn(i,n) fastscan(arr[i]);
+    fs(n); fs(k);
+    forn(i,n) fs(arr[i]);
 
-    if (k == 1) {forn(i,n) printf("0 "); return 0;} // caso 1 (las queues se rompen por .empty())
+    forn(i,k) QL.push({arr[i],i}), sl += arr[i], assigned[i] = 0;
+    int szl = (k+1)/2, szr = k/2;
 
-    ll sum = 0; int cntL = 0, cntR = 0;
-    forn(i,k) low.push({arr[i],i});
-    while(low.size() > (k+1)/2) {high.push(low.top()); low.pop();} // balance
-    forn(i,k) sum += abs(low.top().fst-arr[i]); // diferencias iniciales
-    cntL = low.size(); cntR = high.size(); // cantidad REAL en cada queue inicial
-    printf("%lld ",sum); // primer valor (output)
+    while ((int)QL.size() > szl) {
+        auto e = QL.top(); QL.pop();
+        sl -= e.fst, sh += e.fst;
+        assigned[e.snd] = 1;
+        QH.push(e);
+    }
 
-    forsn(i,k,n) {
-        ii pLow = low.top(), pHigh = high.top(); // previos max y min de los heap
+    forn(i,n-k+1) {
+        int med = QL.top().fst;
+        ll difl = szl * (ll)med - sl;
+        ll difh = sh - szr * (ll)med;
+        printf("%lld ",difl + difh);
 
-        sum -= abs(pLow.fst-arr[i-k]); // saco viejo
-        sum += abs(pLow.fst-arr[i]); // pongo nuevo "falso" (me conviene)
-        if (isLeft(i-k,pLow.snd,pLow.fst,pHigh.fst)) cntL--; // si estaba a la izquierda o no, cambio la cantidad
-        else cntR--;
-
-        while (!low.empty() and low.top().snd <= i-k) low.pop(); // saco expirados
-        while (!high.empty() and high.top().snd <= i-k) high.pop();
-
-        // "Sliding Median"
-        if (arr[i] <= low.top().fst) {
-            low.push({arr[i],i}); cntL++;
-            if (arr[i-k] > pLow.fst) {high.push(low.top()); low.pop(); cntL--; cntR++;}
+        if (arr[i+k] < med) {
+            QL.push({arr[i+k],i+k});
+            sl += arr[i+k];
+            assigned[i+k] = 0;
+            if (assigned[i]) {
+                ii x = QL.top();
+                sl -= x.fst, sh += x.fst;
+                assigned[x.snd] = 1;
+                sh -= arr[i];
+                QH.push(x); QL.pop();
+            }
+            else sl -= arr[i];
         }
-        else if (arr[i] >= high.top().fst) {
-            high.push({arr[i],i}); cntR++;
-            if (arr[i-k] <= pLow.fst) {low.push(high.top()); high.pop(); cntL++; cntR--;}
+        else if (arr[i+k] > med) {
+            QH.push({arr[i+k],i+k});
+            sh += arr[i+k];
+            assigned[i+k] = 1;
+            if (!assigned[i]) {
+                ii x = QH.top();
+                sh -= x.fst, sl += x.fst;
+                assigned[x.snd] = 0;
+                sl -= arr[i];
+                QL.push(x); QH.pop();
+            }
+            else sh -= arr[i];
         }
-        else if (arr[i-k] <= pLow.fst) {low.push({arr[i],i}); cntL++;}
-        else {high.push({arr[i],i}); cntR++;}
+        else if (!assigned[i]) {
+            QL.push({arr[i+k],i+k});
+            assigned[i+k] = 0;
+            sl += arr[i+k], sl -= arr[i];
+        }
+        else {
+            QH.push({arr[i+k],i+k});
+            assigned[i+k] = 1;
+            sh += arr[i+k], sh -= arr[i];
+        }
 
-        while (!low.empty() and low.top().snd <= i-k) low.pop(); // saco expirados (nuevos descubiertos)
-        while (!high.empty() and high.top().snd <= i-k) high.pop();
-
-        int borderL = 0, borderR = 0; // desfases si son necesarios
-        // CASO BORDE -> Si pasa uno de la high queue a la low queue (se hace mediana) y con una ventana de lado par, desfaso para no sumar mal
-        if (!isLeft(low.top().snd,pLow.snd,pLow.fst,pHigh.fst) && !(k&1)) {borderL = 1; borderR = -1;}
-
-        sum += (pLow.fst-low.top().fst)*(cntL+borderL)*(low.top().fst > pLow.fst ? 1 : -1); // sumo defases según cambio de mediana
-        sum += (pLow.fst-low.top().fst)*(cntR+borderR)*(low.top().fst < pLow.fst ? 1 : -1);
-
-        printf("%lld ",sum); // output
+        while (!QH.empty() && QH.top().snd <= i) QH.pop();
+        while (!QL.empty() && QL.top().snd <= i) QL.pop();
     }
 
     return 0;
 }
-
-/// ESCRIBÍ en vez de tanto dar vueltas
-/// si te parece que no va PROBALO PRIMERO!
-/// CODEA LO BÁSICO PRIMERO!
-/// HACE C-A-S-O-S D-E P-R-U-E-B-A.A.A.A.A!!!
