@@ -14,45 +14,40 @@ typedef vector<int> vi;
 typedef long long ll;
 typedef pair<int,int> ii;
 typedef vector<ll> vll;
+typedef pair<ll,int> li;
+typedef vector<li> vli;
 
 const int MAXN = 1002;
 
-struct nodo {
-    ll v,d;
-
-    bool operator< (const nodo &o) const{
-        return o.d < d;
-    }
-};
-
-vector<nodo> G[MAXN];
+vli G[MAXN];
 int pasadas[MAXN];
 vll caminos;
 
 void antiDijkstra (int st, int nd, int K) {
-    priority_queue<nodo> Q;
-    Q.push({st,0});
+    priority_queue<li,vli,greater<li>> Q;
+    Q.push({0,st});
 
     while (not Q.empty()) {
         auto x = Q.top(); Q.pop();
 
-        if (x.v == nd) {
-            caminos.push_back(x.d);
-            if (caminos.size() >= K) break;
+        if (pasadas[x.snd] >= K) continue;
+        pasadas[x.snd]++;
+
+        if (x.snd == nd) {
+            caminos.push_back(x.fst);
+            if ((int)caminos.size() >= K) break;
         }
 
-        if (pasadas[x.v] >= K) continue;
-        pasadas[x.v]++;
-
-        for (auto &w : G[x.v])
-            Q.push({w.v,  (x.d + w.d)});
+        for (auto &w : G[x.snd])
+            if (pasadas[w.snd] < K)
+                Q.emplace((x.fst + w.fst), w.snd);
     }
 }
 
 vector<long long> gps(int N, int M, int comienzo, int fin, int K, vector<int> origen, vector<int> destino, vector<int> tiempo)
 {
     forn (i,M)
-        G[origen[i]-1].push_back({destino[i]-1,tiempo[i]});
+        G[origen[i]-1].emplace_back(tiempo[i],destino[i]-1);
 
     antiDijkstra(comienzo-1,fin-1,K);
 
