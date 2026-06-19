@@ -71,7 +71,7 @@ void COMP() {
 
 
 int main () {
-    freopen("imagenes.in","r",stdin);
+//    freopen("imagenes.in","r",stdin);
 //    freopen("imagenes.out","w",stdout);
 
     getline(cin,comp);
@@ -80,6 +80,6 @@ int main () {
     COMP();
     DECOMP();
 
-    cout << lin1 << endl << lin2;
+    cout << lin1 << endl << lin2 << endl;
     return 0;
 }
