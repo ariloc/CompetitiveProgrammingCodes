@@ -12,7 +12,7 @@ vi arbol[MAXN], done, raices, arcos;
 int cantE[MAXN];
 int recor = 0;
 
-int dfs(int &n) {
+void dfs(int &n) {
     done[n] = true;
     recor++;
     for (auto &i: arbol[n]) {
@@ -47,7 +47,7 @@ int main() {
         done.resize(N, false);
         dfs(x);
     }
-    if (raices.size() > 1 or arcos.size() or recor != N) tree = false;
+    if (raices.size() != 1 or arcos.size() or recor != N) tree = false;
 
     if (tree)
         cout << "Si" << ' ' << raices[0];
