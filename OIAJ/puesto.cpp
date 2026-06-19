@@ -110,7 +110,7 @@ int main() {
     if (got.fst == got.snd) segExtremo = -1;
 
     // correré la galería del nodo tal que esté balanceado entre mis dos nodos más lejanos
-    printf("%.1f\n",((float)got.fst+got.snd)/2);
+    printf("%.1F\n",((double)got.fst+got.snd)/2);
 
     ii edgeGal = {which,segExtremo};
     if (edgeGal.fst > edgeGal.snd) swap(edgeGal.fst,edgeGal.snd);
