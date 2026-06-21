@@ -15,7 +15,7 @@ vector<calle> esquinas[MAXN];
 vector<bool> done;
 vector<int> orden;
 
-int dfs(int n) {
+void dfs(int n) {
     for (auto &i : esquinas[n]) {
         if (not done[i.c]) {
             orden.push_back(i.c);
