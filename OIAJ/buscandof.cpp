@@ -43,10 +43,10 @@ struct ln {
     ln(pt a, pt b) : a(a),ab(b-a){};
 
     bool sent (const pt &x) {return ((ab%(x-a)) >= 0);}
-    bool onLine (const pt &x) {return (!(ab%(x-a)));} // si está en la línea, da 0
+    bool onLine (const pt &x) {return (!(ab%(x-a)));} // si est� en la l�nea, da 0
     /*long double proy(pt x) {
         if (!ab.len()) return INF;
-        return (ab*(x-a))/ab.len(); // a x b / |a| -> proyección
+        return (ab*(x-a))/ab.len(); // a x b / |a| -> proyecci�n
     }*/
 
     bool operator< (const ln &o) const {
@@ -84,21 +84,28 @@ int buscandof(int N, vector<int> x, vector<int> y)
 
         auto comp = [](const pair<ll,bool> &a, const pair<ll,bool> &b){if (a.fst == b.fst) return a.snd > b.snd; return a.fst > b.fst;};
 
-        map<pair<ll,bool>,int,decltype(comp)> proys(comp);
+        vector<pair<ll,bool>> proysAux;
+        vector<pair<pair<ll,bool>,int>> proys;
         forn(k,N) {
             pt act = {x[k],y[k]};
             if (!me.sent(act) && !(me.onLine(act))) continue;
             ll actProy = me.ab*(act-me.a);
-            if (me.onLine(act)) proys[{actProy,1}]++;
-            else proys[{actProy,0}]++; // si no están en recta, vale para orden mayor
+            if (me.onLine(act)) proysAux.pb({actProy,1});
+            else proysAux.pb({actProy,0}); // si no est�n en recta, vale para orden mayor
 
             //cerr << me.a.x << ' ' << me.a.y << ' ' << me.ab.x << ' ' << me.ab.y << ' ' << act.x << ' ' << act.y << ' ' << ' ' << (act-me.a).x << ' ' << (act-me.a).y << ' ' << proys[actProy] << ' ' << actProy << endl;
 
         }
 
+        sort(all(proysAux),comp);
+        forn(i,proysAux.size()) {
+            if (!i || proysAux[i] != proysAux[i-1]) proys.pb({proysAux[i],1});
+            else proys.back().snd++;
+        }
+
         int maxi1 = 0, maxi2 = 0;
         int cntEnRecta = 0;
-        for (auto &k : proys) { // recorremos al revés así revisamos desde aquellos más abajo
+        for (auto &k : proys) { // recorremos al rev�s as� revisamos desde aquellos m�s abajo
             if (k.fst.snd) {cntEnRecta++; maxi = max(maxi,cntEnRecta+maxi1); continue;}
             bool enh = false;
             if (k.snd > maxi1) {swap(maxi1,maxi2); maxi1 = k.snd; enh = true;}
