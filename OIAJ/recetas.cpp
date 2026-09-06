@@ -19,18 +19,16 @@ typedef long long ll;
 typedef pair<int,int> ii;
 typedef long double ld;
 
-int const MAXN = 3e5+5;
-
-int dp[MAXN], pot10[MAXN];
-
-vector<int> aplicando(string n, int d, vector<int> a, vector<int> b) {
-    pot10[0] = 1;
-    forsn(i,1,MAXN) pot10[i] = (10LL * pot10[i-1])%d;
-
-    forn(i,sz(n)) dp[i+1] = (dp[i] * 10LL + n[i]-'0')%d;
-
-    vi ret;
-    forn(i,sz(a))
-        ret.pb((dp[b[i]]-(dp[a[i]-1] * (ll)pot10[b[i]-a[i]+1])%d + d)%d);
-    return ret;
+int recetas(vector<string> heladera, vector<vector<string> > libro, vector<int> &realizables) {
+    set<string> ing;
+    for (auto &s : heladera) ing.insert(s);
+    vi realiz;
+    forn(i,sz(libro)) {
+        bool ok = true;
+        for (auto &j : libro[i])
+            if (!ing.count(j)) ok = false;
+        if (ok) realiz.pb(i+1);
+    }
+    realizables = realiz;
+    return sz(realiz);
 }

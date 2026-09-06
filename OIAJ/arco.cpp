@@ -19,18 +19,10 @@ typedef long long ll;
 typedef pair<int,int> ii;
 typedef long double ld;
 
-int const MAXN = 3e5+5;
-
-int dp[MAXN], pot10[MAXN];
-
-vector<int> aplicando(string n, int d, vector<int> a, vector<int> b) {
-    pot10[0] = 1;
-    forsn(i,1,MAXN) pot10[i] = (10LL * pot10[i-1])%d;
-
-    forn(i,sz(n)) dp[i+1] = (dp[i] * 10LL + n[i]-'0')%d;
-
-    vi ret;
-    forn(i,sz(a))
-        ret.pb((dp[b[i]]-(dp[a[i]-1] * (ll)pot10[b[i]-a[i]+1])%d + d)%d);
-    return ret;
+string arco(int x, int y) {
+    if (x > 0 && x < 732 && y < 232)
+        return "GOL";
+    if (x >= 0 && x <= 732 && y <= 232)
+        return "PALO";
+    return "AFUERA";
 }
