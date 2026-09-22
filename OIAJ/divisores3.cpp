@@ -15,7 +15,6 @@ typedef vector<int> vi;
 typedef pair<int,int> ii;
 typedef long long ll;
 
-const int MAXN = 1e6+5;
 const int MAXK = 51;
 const ll INF = 9e18;
 
@@ -27,17 +26,8 @@ void fact(ll x, map<ll,int> &F) {
 
 //bitset<MAXN> done;
 //ll D[MAXN][MAXK];
-ll dp[MAXN],MOD;
-int spf[MAXN];
-
-void criba () {
-    forn(i,MAXN) spf[i] = i;
-    for (int i = 4; i < MAXN; i += 2) spf[i] = 2;
-    for (int i = 3; i*i <= MAXN; i += 2)
-        if (spf[i] == i)
-            for (int j = i+i; i < MAXN; j += i)
-                if (spf[j] == j) spf[j] = i;
-}
+unordered_map<ll,ll> dp;
+ll MOD;
 
 struct op {
     ll x,acc;
@@ -50,7 +40,9 @@ ll calc (ll N, ll M) {
 
 ll solve (ll N, bool turn) { // 1 es Gastón, 0 es Agustín
     if (N == 1) return calc(1,MOD);
-    if (dp[N] != -1) return dp[N];
+    auto it = dp.find(N);
+    if (it != dp.end())
+        return (*it).snd;
 
     map<ll,int> F;
     ll aux = N;
@@ -73,9 +65,10 @@ vector<long long> divisores(long long N, long long M) {
     MOD = M;
 
     vector<ll> rtas;
-    forn(i,MAXN) dp[i] = -1; dp[1] = 0;
+    dp[1] = 0;
     rtas.pb(solve(N,0));
-    forn(i,MAXN) dp[i] = -1; dp[1] = 0;
+    dp.clear();
+    dp[1] = 0;
     rtas.pb(solve(N,1));
 
     return rtas;
