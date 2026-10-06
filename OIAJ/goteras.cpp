@@ -1,77 +1,95 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
+#include<cassert>
 
 #define forn(i,n) for(int i = 0; i < int(n); i++)
 #define forsn(i,s,n) for(int i = int(s); i < int(n); i++)
 #define dforn(i,n) for(int i = int(n)-1; i >= 0; i--)
 #define dforsn(i,s,n) for(int i = int(n)-1; i >= int(s); i--)
-#define all(c) (c).begin(),(c).end()
 #define fst first
 #define snd second
 #define pb push_back
-#define FAST_IO ios::sync_with_stdio(false);cin.tie(nullptr);
-
+#define sz(c) ((int)c.size())
+#define all(c) (c).begin(),(c).end()
+#define forall(it,v) for(auto it=v.begin();it!=v.end();++it)
+#define FAST_IO ios::sync_with_stdio(false);cin.tie(nullptr)
+ 
 using namespace std;
 typedef vector<int> vi;
-typedef pair<int,int> ii;
 typedef long long ll;
+typedef pair<int,int> ii;
+typedef long double ld;
 
 long long medir(long long x);
+
 vector<ll> rta;
-set<ll> touched;
-int myN;
+int n;
 
-void split(ll l, ll r) {
-    if (!myN) return;
+bool valid (ll pos, ll l, ll r) {
+    if (pos < l || pos > r)
+        return false;
+    return pos%2 == 0;
+}
+
+void go (ll l, ll r) {
+    if (sz(rta) == n) return;
+    if (r < l) return;
+    if (r == l) {
+        if (!medir(l)) rta.pb(l);
+        return;
+    }
     ll mid = (l+r)/2;
-    ll myMedir = medir(mid);
 
-    if (!medir(mid+myMedir)) {
-        if (touched.count(mid+myMedir)) return;
-        rta.pb(mid+myMedir); myN--;
-        touched.insert(mid+myMedir);
-        split(mid+myMedir,r);
-        split(l,mid+myMedir);
-    } else {
-        if (touched.count(mid-myMedir)) return;
-        rta.pb(mid-myMedir); myN--;
-        touched.insert(mid-myMedir);
-        split(mid-myMedir,r);
-        split(l,mid-myMedir);
+    ll len = r-l+1;
+    if (len % 2 == 0) {
+        ll div = len / 2;
+        if (valid(mid+div,l,r))
+            mid = (l+r+1)/2;
+    }
+
+    ll val = medir(mid);
+
+    if (!val) {
+        rta.pb(mid);
+        go(mid+1,r);
+        go(l,mid-1);
+        return;
+    }
+
+    if (!valid(mid+val,l,r) && !valid(mid-val,l,r))
+        return;
+
+    bool right = false;
+    if (valid(mid+val,l,r) && valid(mid-val,l,r))
+        right = !medir(mid+val);
+
+    if (!valid(mid-val,l,r)) right = true;
+
+    if (right) {
+        rta.pb(mid+val);
+        go(mid+val+1,r);
+        go(l,mid-val);
+    }
+    else {
+        rta.pb(mid-val);
+        go(mid+val,r);
+        go(l,mid-val-1);
     }
 }
 
-vector<long long> goteras(int N, long long L)
-{
-    ll prim = medir(1)+1; rta.pb(prim); touched.insert(prim);
-    N--;
+vector<long long> goteras(int N, long long L) {
+    ll l = 1+medir(1);
+    if (N == 1) return {l};
+    
+    ll r = L-medir(L);
+    if (N == 2) return {l,r};
 
-    if (!N) return rta;
-    ll sec = L-medir(L); rta.pb(sec); N--; touched.insert(sec);
-    if (!N) return rta;
+    n = N;
 
-    myN = N;
+    if (l == r) return {l};
+    rta.pb(l); rta.pb(r);
 
-    split(prim,sec);
+    go(l+1,r-1);
 
-    /*while (N) {
-        ll low = prim;
-        ll high = L;
-
-        bool lastop = false; pair<ll,ll> lastM = {-1,-1};
-        while(high-low > 1) {
-            ll mid = (high+low)/2;
-            swap(lastM.snd,lastM.fst);
-            lastM.fst = medir(mid);
-            if (lastM.fst != mid-prim)
-                {high = mid; lastop = true;}
-            else {low = mid; lastop = false;}
-        }
-        if (lastop) prim = high+lastM.fst;
-        else prim = high+lastM.snd;
-        rta.pb(prim); N--;
-    }*/
-
-    //split(prim,L+1);
     return rta;
 }
 
@@ -91,12 +109,10 @@ vector<long long> goteras(int N, long long L)
     vector<long long> goteras(int N, long long L);
 
     set<long long> setDeLasGoteras;
-    int cnt = 0;
 
     long long MAXIMO_X_PERMITIDO;
 
     long long medir(long long x) {
-        cnt++;
         cout << "medir(" << x << ") = ";
         if (x < 1 || x > MAXIMO_X_PERMITIDO)
         {
@@ -141,8 +157,6 @@ vector<long long> goteras(int N, long long L)
             cout << x;
         }
         cout << endl;
-
-        cout << "QUERIES:" << ' ' << cnt << endl;
         return 0;
     }
 #endif
